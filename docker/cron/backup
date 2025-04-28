@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+
+STAMP=$(date +%Y%m%d-%H%M%S)
+tar -czf "/var/www/html/storage/backups/backup-${STAMP}.tgz" \
+    --exclude='storage/backups' /var/www/html
