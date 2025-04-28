@@ -1,22 +1,14 @@
 #!/bin/bash
-set -e
+service cron start
+# Daten-Ordner anlegen
+mkdir -p /var/www/html/includes/data/{sessions,backups}
+chown -R www-data:www-data /var/www/html/includes/data
 
-# Dienste starten
-service ssh   start
-service cron  start
+mkdir -p /var/www/html/modules
+chown -R www-data:www-data /var/www/html/modules
+chmod -R 775            /var/www/html/modules
 
-# Storage‑Ordner (inkl. Backups) anlegen
-mkdir -p /var/www/html/storage/{logs,cache,download,upload,modification,session,backups}
-chown -R www-data:www-data /var/www/html/storage
 
-# Auf MySQL warten
-until mysql -h "$DB_HOST" -u"$DB_USER" -p"$DB_PASS" -e "SELECT 1" >/dev/null 2>&1; do
-  echo '[*] waiting for MySQL …'
-  sleep 3
-done
-
-# Flags initialisieren (Hintergrund)
-/flag_init.sh &
-
-# Apache vorn
+# Flags setzen
+/usr/local/bin/flag_init.sh &
 exec apache2-foreground

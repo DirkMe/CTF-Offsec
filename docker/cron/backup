@@ -1,4 +1,0 @@
-#!/bin/bash
-# ➜ wird minütlich als root ausgeführt - aber die Datei gehört dem User ctf,
-# so dass er sie überschreiben und damit Priv-Escalation erzwingen kann.
-tar czf /tmp/htdocs-$(date +%s).tgz /var/www/html 2>/dev/null
