@@ -52,6 +52,10 @@ COPY docker/start.sh        /usr/local/bin/start.sh
 COPY docker/flag_init.sh    /usr/local/bin/flag_init.sh
 COPY docker/cron/cron-backup.sh /usr/local/bin/cron-backup.sh
 
+RUN chmod +x /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/flag_init.sh
+RUN chmod +x /usr/local/bin/cron-backup.sh
+
 
 RUN chown ctf:ctf /usr/local/bin/cron-backup.sh \
  && chmod 755   /usr/local/bin/cron-backup.sh
