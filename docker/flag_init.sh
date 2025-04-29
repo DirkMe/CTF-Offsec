@@ -18,11 +18,7 @@ SQL
 
 
 # Flag 3: SSH-Key
-useradd -m -s /bin/bash ctf
-mkdir -p /home/ctf/.ssh
-echo 'ssh-rsa AAAA…attacker@ctf' >> /home/ctf/.ssh/authorized_keys
 echo 'FLAG{SSH_PERSISTENCE}' > /home/ctf/.ssh/flag3.txt
-chown -R ctf:ctf /home/ctf/.ssh
 
 # Flag 4: Root über Cron
 echo 'FLAG{CRON_ROOT}' > /root/flag4.txt

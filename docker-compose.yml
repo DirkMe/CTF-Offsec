@@ -4,6 +4,8 @@ services:
     ports:
       - "8080:80"
       - "2222:22"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
     volumes:
       - ./prestashop-1.5.6.2:/var/www/html
       - prestashop_data:/var/www/html/modules/blocklayered/cache

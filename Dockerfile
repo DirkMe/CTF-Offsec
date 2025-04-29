@@ -25,10 +25,40 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends cron mariadb-client \
     && docker-php-ext-install mysqli pdo_mysql
 
+
+RUN apt-get update \
+&& apt-get install -y --no-install-recommends openssh-server \
+&& mkdir -p /var/run/sshd \
+&& ssh-keygen -A
+
+# ── 2) CTF-User einrichten & SSH-Dir mit korrekten Rechten ───────────────
+RUN useradd -m -s /bin/bash ctf \
+ && mkdir -p /home/ctf/.ssh \
+ && touch    /home/ctf/.ssh/authorized_keys \
+ # Owner = ctf, Group = www-data
+ &&chown -R ctf:ctf /home/ctf/.ssh \
+ &&chmod 770             /home/ctf/.ssh \
+ &&chmod 660             /home/ctf/.ssh/authorized_keys
+
+ RUN sed -i 's/^#\?StrictModes .*/StrictModes no/' /etc/ssh/sshd_config
+
+ # Pubkey immer erlauben
+RUN sed -i 's/^#\?PubkeyAuthentication .*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+# Passwort-Login abschalten
+RUN sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
+
 # ── 4) CTF-Skripte & Init ───────────────────────────────────────────────
 COPY docker/start.sh        /usr/local/bin/start.sh
 COPY docker/flag_init.sh    /usr/local/bin/flag_init.sh
-COPY docker/cron/cron-backup.sh  /usr/local/bin/cron-backup.sh
+COPY docker/cron/cron-backup.sh /usr/local/bin/cron-backup.sh
+
+
+RUN chown ctf:ctf /usr/local/bin/cron-backup.sh \
+ && chmod 755   /usr/local/bin/cron-backup.sh
+
+ RUN printf "* * * * * root /usr/local/bin/cron-backup.sh\n" \
+     > /etc/cron.d/ctf-backup \
+ && chmod 644 /etc/cron.d/ctf-backup
 
 EXPOSE 80 22
 
