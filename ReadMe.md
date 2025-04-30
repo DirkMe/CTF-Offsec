@@ -12,9 +12,9 @@ Die Flags haben immer folgendes Format:
 # Setup & Installation
 
  **Repository klonen**  
-   ```bash
-   git clone https://github.com/DirkMe/CTF-Offsec ctf
-   cd ctf
+ 
+    git clone https://github.com/DirkMe/CTF-Offsec ctf
+    cd ctf
 
 Ordnerstruktur:
  
