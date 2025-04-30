@@ -78,7 +78,7 @@ backup/flag1.txt
 
 z.B. Findbar durch 
 
-    feroxbuser -u http://localhost:8080 -w /usr/share/wordlists/dirb/common.txt -x .txt
+    feroxbuster -u http://localhost:8080 -w /usr/share/wordlists/dirb/common.txt -x .txt
 
 Exploit:
 
