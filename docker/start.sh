@@ -27,7 +27,8 @@ chown -R www-data:www-data /var/www/html/modules
 chmod -R 775            /var/www/html/modules
 
 
-
+mkdir /var/www/html/cache
+mkdir /var/www/html/log
 chown -R www-data:www-data /var/www/html/cache && chmod -R u+rwX,go-rwx /var/www/html/cache
 chown -R www-data:www-data /var/www/html/log && chmod -R u+rwX,go-rwx /var/www/html/log
 
