@@ -25,7 +25,7 @@ Dieses Dokument fasst alle Schritte zusammen, um das PrestaShop-CTF aufzusetzen 
 
 1. **Repository klonen**  
    ```bash
-   git clone https://github.com/DirkMe/CTF-Offsec
+   git clone https://github.com/DirkMe/CTF-Offsec ctf
    cd ctf
 
 Ordnerstruktur
