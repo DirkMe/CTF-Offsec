@@ -1,6 +1,7 @@
 services:
   web:
     build: .
+    entrypoint: ["/usr/local/bin/start.sh"]
     ports:
       - "8080:80"
       - "2222:22"

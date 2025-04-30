@@ -37,7 +37,14 @@ Container starten
     docker compose up -d
 
 in manchen Fällen startet der Container nicht weil die start.sh aus unbekannten Gründen nicht in den Container kopiert wird.
-Für diesen hab ich das fertige Dockerimage in einem Repository hochgeladen und wird von der docker-compose_v2.yml verwendet.
+
+in dem Fall über die GitBash in Windows innerhalb des CTF Ordner öffnen und folgenden Befehl machen um die Zeilenendungen zu ändern
+
+        dos2unix docker/*.sh
+
+Für den Fall, dass es immer noch nicht funktioniert habe ich das fertige Dockerimage in einem Repository hochgeladen und wird von der docker-compose_v2.yml verwendet.
+
+
 
 
 Falls das Fehlschlägt:
