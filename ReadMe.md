@@ -25,7 +25,7 @@ Dieses Dokument fasst alle Schritte zusammen, um das PrestaShop-CTF aufzusetzen 
 
 1. **Repository klonen**  
    ```bash
-   git clone https://github.com/DirkMe/CTF-Offsec
+   git clone https://github.com/DirkMe/CTF-Offsec ctf
    cd ctf
 
 Ordnerstruktur
@@ -49,6 +49,7 @@ Container starten
     docker compose up -d
 
 Falls das Fehlschlägt:
+
     docker compose -f docker-compose_v2.yml build --no-cache
     docker compose -f docker-compose_v2.yml up -d
 
