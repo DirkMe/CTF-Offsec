@@ -1,0 +1,1 @@
+FLAG{Backup Leak}  Es gibt einen User auf dem Server mit dem Nutzernamen CTF

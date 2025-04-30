@@ -25,6 +25,16 @@
 
 <!-- Block permanent links module HEADER -->
 <ul id="header_links">
+					<li>
+					<a href="{$link->getModuleLink('ndk_steppingpack','quote', ['product_id'=>1])}">
+						Current Order
+					</a>
+					</li>
+					<li>
+					<a href="{$base_dir}modules/orderfiles/ajax/upload.php">
+						File-Upload
+					</a>
+					</li>
 	<li id="header_link_contact"><a href="{$link->getPageLink('contact', true)|escape:'html'}" title="{l s='contact' mod='blockpermanentlinks'}">{l s='contact' mod='blockpermanentlinks'}</a></li>
 	<li id="header_link_sitemap"><a href="{$link->getPageLink('sitemap')|escape:'html'}" title="{l s='sitemap' mod='blockpermanentlinks'}">{l s='sitemap' mod='blockpermanentlinks'}</a></li>
 	<li id="header_link_bookmark">

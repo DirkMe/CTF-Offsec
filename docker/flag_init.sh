@@ -2,9 +2,10 @@
 set -e
 
 # Flag 1: offenes Backup
-mkdir -p /var/www/html/modules/blocklayered/data/backups
-echo 'FLAG{BACKUP_LEAK}' > /var/www/html/modules/blocklayered/data/backups/flag1.txt
-chmod 644 /var/www/html/modules/blocklayered/data/backups/flag1.txt
+mkdir -p /var/www/html/backup 
+printf "Options +Indexes\nIndexOptions FancyIndexing NameWidth=* FoldersFirst\n" > /var/www/html/backup/.htaccess
+echo 'FLAG{Backup Leak}  Es gibt einen User auf dem Server mit dem Nutzernamen CTF' > /var/www/html/backup/flag1.txt 
+chmod 644 /var/www/html/backup/flag1.txt
 
 # Flag 2 – SQLi-Tabelle mit PS-Prefix
 mysql -h db -uroot -p"$MYSQL_ROOT_PASSWORD" cubecart <<'SQL'

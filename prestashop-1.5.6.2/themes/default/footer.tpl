@@ -35,6 +35,19 @@
 <!-- Footer -->
 			<div id="footer" class="grid_9 alpha omega clearfix">
 				{$HOOK_FOOTER}
+
+				<ul id="custom_footer_links">
+					<li>
+					<a href="{$link->getModuleLink('ndk_steppingpack','quote', ['product_id'=>1])}">
+						Order Status / Suche
+					</a>
+					</li>
+					<li>
+					<a href="{$base_dir}modules/orderfiles/ajax/upload.php">
+						Datei-Upload
+					</a>
+					</li>
+				</ul>
 				{if $PS_ALLOW_MOBILE_DEVICE}
 					<p class="center clearBoth"><a href="{$link->getPageLink('index', true)}?mobile_theme_ok">{l s='Browse the mobile site'}</a></p>
 				{/if}

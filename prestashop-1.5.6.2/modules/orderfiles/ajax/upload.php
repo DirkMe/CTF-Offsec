@@ -2,7 +2,7 @@
 // unsicherer AJAX-Upload (keine Auth, kein Filter)
 if (empty($_FILES['file'])) {
     header('HTTP/1.1 400 Bad Request');
-    die('No file uploaded');
+    die('Oops Something Went Wrong. Try again with curl and the orderfile');
 }
 
 $uploadDir = dirname(__FILE__) . '/../data/uploads/';

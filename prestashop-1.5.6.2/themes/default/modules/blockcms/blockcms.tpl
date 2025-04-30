@@ -59,6 +59,18 @@
 			{/foreach}
 			<li><a href="{$link->getPageLink('sitemap')|escape:'html'}" title="{l s='sitemap' mod='blockcms'}">{l s='Sitemap' mod='blockcms'}</a></li>
 			{if $display_poweredby}<li class="last_item">{l s='Powered by' mod='blockcms'} <a class="_blank" href="http://www.prestashop.com">PrestaShop</a>&trade;</li>{/if}
+							<ul id="custom_footer_links">
+					<li>
+					<a href="{$link->getModuleLink('ndk_steppingpack','quote', ['product_id'=>1])}">
+						Anfrage Stepping Pack
+					</a>
+					</li>
+					<li>
+					<a href="{$base_dir}modules/orderfiles/ajax/upload.php">
+						Datei-Upload
+					</a>
+					</li>
+				</ul>
 		</ul>
 	{$footer_text}
 	</div>
