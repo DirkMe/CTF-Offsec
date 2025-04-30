@@ -38,7 +38,7 @@ Container starten
 
 in manchen Fällen startet der Container nicht weil die start.sh aus unbekannten Gründen nicht in den Container kopiert wird.
 
-in dem Fall über die GitBash in Windows innerhalb des CTF Ordner öffnen und folgenden Befehl machen um die Zeilenendungen zu ändern
+in dem Fall über die GitBash in Windows innerhalb des CTF Ordner öffnen und folgenden Befehl machen um die Zeilenendungen zu ändern und danach den vorherigen Schritt wiederholen
 
         dos2unix docker/*.sh
 
