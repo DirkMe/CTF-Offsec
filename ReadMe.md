@@ -49,6 +49,7 @@ Container starten
     docker compose up -d
 
 Falls das Fehlschlägt:
+
     docker compose -f docker-compose_v2.yml build --no-cache
     docker compose -f docker-compose_v2.yml up -d
 
