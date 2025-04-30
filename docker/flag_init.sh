@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 
 # Flag 1: offenes Backup
 mkdir -p /var/www/html/backup 
@@ -7,16 +6,7 @@ printf "Options +Indexes\nIndexOptions FancyIndexing NameWidth=* FoldersFirst\n"
 echo 'FLAG{Backup Leak}  Es gibt einen User auf dem Server mit dem Nutzernamen CTF' > /var/www/html/backup/flag1.txt 
 chmod 644 /var/www/html/backup/flag1.txt
 
-# Flag 2 – SQLi-Tabelle mit PS-Prefix
-mysql -h db -uroot -p"$MYSQL_ROOT_PASSWORD" cubecart <<'SQL'
-CREATE TABLE IF NOT EXISTS prefix2_0ctf_flags (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  flag VARCHAR(255)
-) ENGINE=InnoDB;
-
-INSERT IGNORE INTO prefix2_0ctf_flags(flag) VALUES ('FLAG{SQLI_SUCCESS}');
-SQL
-
+# Flag 2 – SQLi-Tabelle mit PS-Prefix schon gesetzt durch initial DB 
 
 # Flag 3: SSH-Key
 echo 'FLAG{SSH_PERSISTENCE}' > /home/ctf/.ssh/flag3.txt

